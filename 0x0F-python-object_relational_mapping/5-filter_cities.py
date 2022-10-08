@@ -12,12 +12,17 @@ if __name__ == '__main__':
                          port=3306,
                          user=username,
                          passwd=password,
-                         db=db_name,
-                         charset="utf8")
+                         db=db_name)
     cur = db.cursor()
-    cur.execute('SELECT * FROM states ORDER BY id ASC')
+    cur.execute("""SELECT  C.name
+                   FROM cities C INNER JOIN states S ON S.id = C.state_id
+                   WHERE S.name = '{}'
+                   ORDER BY C.id ASC""".format(sys.argv[4].replace("'", "''")))
     rows = cur.fetchall()
-    for row in rows:
-        print(row)
+    for i, row in enumerate(rows):
+        print(row[0], end='')
+        if i < len(rows) - 1:
+            print(', ', end='')
+    print()
     cur.close()
     db.close()

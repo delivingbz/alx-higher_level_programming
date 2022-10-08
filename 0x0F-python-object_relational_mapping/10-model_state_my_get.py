@@ -1,32 +1,22 @@
 #!/usr/bin/python3
-'''task 10 script'''
+"""Lists all states via SQLAlchemy"""
 
-from model_state import Base, State
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import sys
-
-
+from model_state import Base, State
 if __name__ == '__main__':
-    username = sys.argv[1]
-    password = sys.argv[2]
-    db_name = sys.argv[3]
-    state_name = sys.argv[4]
-    host = 'localhost'
-    port = '3306'
-
-    engine = create_engine('mysql+mysqldb://{}:{}@{}:{}/{}'.format(
-                           username, password, host, port, db_name),
-                           pool_pre_ping=True)
-    Session = sessionmaker(bind=engine)
-    local_session = Session()
-    result = local_session.query(State).filter(
-                            State.name.like(state_name)
-                            ).first()
-    local_session.close()
-    engine.dispose()
-
-    if result:
-        print(result.id)
+    engine = create_engine('mysql+mysqldb://{}:{}@localhost:3306/{}'.format(
+        sys.argv[1], sys.argv[2], sys.argv[3]), pool_pre_ping=True)
+    Base.metadata.create_all(engine)
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+    session = Session()
+    state = session.query(State).filter(
+                State.name.like("{}".format(
+                          sys.argv[4].replace("'", "''")))).first()
+    if state:
+        print(state.id)
     else:
-        print('Not found')
+        print("Not found")
+    session.close()

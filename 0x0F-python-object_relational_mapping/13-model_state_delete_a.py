@@ -12,9 +12,7 @@ if __name__ == '__main__':
     Session = sessionmaker()
     Session.configure(bind=engine)
     session = Session()
-    state = State(name="Louisiana")
-    if state:
-        session.add(state)
-        session.commit()
-        print(state.id)
+    for state in session.query(State).filter(State.name.like('%a%')):
+        session.delete(state)
+    session.commit()
     session.close()
